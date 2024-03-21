@@ -103,30 +103,27 @@ const Scene = ({ urlGlb }) => {
 
     window.addEventListener("resize", handleResize);
 
-    const saveCanvasAsWEBP = () => {
-      const originalAspect = camera.aspect;
-      const originalSize = {
-        width: renderer.domElement.width,
-        height: renderer.domElement.height,
-      };
-      camera.aspect = 640 / 480;
-      camera.updateProjectionMatrix();
-      renderer.setSize(640, 480);
-      renderer.render(scene, camera);
+    const saveCanvasAsPNG = () => {
+      if (canvasRef.current && renderer && scene) {
+        const originalBackground = scene.background;
+        scene.background = null;
 
-      const dataURL = renderer.domElement.toDataURL("image/webp");
-      const downloadLink = document.createElement("a");
-      downloadLink.download = "scene.webp";
-      downloadLink.href = dataURL;
-      downloadLink.click();
+        renderer.setClearColor(0x000000, 0);
+        renderer.render(scene, camera);
 
-      camera.aspect = originalAspect;
-      camera.updateProjectionMatrix();
-      renderer.setSize(originalSize.width, originalSize.height);
-      handleResize();
+        const dataURL = renderer.domElement.toDataURL("image/png");
+
+        const downloadLink = document.createElement("a");
+        downloadLink.download = "scene.png";
+        downloadLink.href = dataURL;
+        downloadLink.click();
+
+        scene.background = originalBackground;
+        renderer.setClearColor(0x000000, 1);
+      }
     };
 
-    saveImageRef.current = saveCanvasAsWEBP;
+    saveImageRef.current = saveCanvasAsPNG;
   }, [urlGlb]);
 
   return (
@@ -139,7 +136,7 @@ const Scene = ({ urlGlb }) => {
         onClick={() => saveImageRef.current && saveImageRef.current()}
         style={{ position: "absolute", zIndex: 10, top: 10, left: 10 }}
       >
-        Save as WEBP
+        Save as PNG
       </button>
     </>
   );
