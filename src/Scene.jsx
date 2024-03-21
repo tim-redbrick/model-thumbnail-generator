@@ -6,6 +6,7 @@ import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 
 const Scene = ({ urlGlb }) => {
   const canvasRef = useRef();
+  const saveImageRef = useRef();
 
   useEffect(() => {
     const scene = new THREE.Scene();
@@ -101,14 +102,46 @@ const Scene = ({ urlGlb }) => {
     };
 
     window.addEventListener("resize", handleResize);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-      renderer.dispose();
+
+    const saveCanvasAsWEBP = () => {
+      const originalAspect = camera.aspect;
+      const originalSize = {
+        width: renderer.domElement.width,
+        height: renderer.domElement.height,
+      };
+      camera.aspect = 640 / 480;
+      camera.updateProjectionMatrix();
+      renderer.setSize(640, 480);
+      renderer.render(scene, camera);
+
+      const dataURL = renderer.domElement.toDataURL("image/webp");
+      const downloadLink = document.createElement("a");
+      downloadLink.download = "scene.webp";
+      downloadLink.href = dataURL;
+      downloadLink.click();
+
+      camera.aspect = originalAspect;
+      camera.updateProjectionMatrix();
+      renderer.setSize(originalSize.width, originalSize.height);
+      handleResize();
     };
+
+    saveImageRef.current = saveCanvasAsWEBP;
   }, [urlGlb]);
 
   return (
-    <canvas ref={canvasRef} style={{ width: "100%", height: "100vh" }}></canvas>
+    <>
+      <canvas
+        ref={canvasRef}
+        style={{ width: "100vw", height: "100vh" }}
+      ></canvas>
+      <button
+        onClick={() => saveImageRef.current && saveImageRef.current()}
+        style={{ position: "absolute", zIndex: 10, top: 10, left: 10 }}
+      >
+        Save as WEBP
+      </button>
+    </>
   );
 };
 
