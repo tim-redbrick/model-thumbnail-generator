@@ -4,7 +4,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 
-const Scene = () => {
+const Scene = ({ urlGlb }) => {
   const canvasRef = useRef();
 
   useEffect(() => {
@@ -27,7 +27,7 @@ const Scene = () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
 
     const camera = new THREE.PerspectiveCamera(
-      30,
+      35,
       window.innerWidth / window.innerHeight,
       0.01,
       1000
@@ -75,7 +75,7 @@ const Scene = () => {
     };
 
     new GLTFLoader().load(
-      "https://store.redbrick.land/redbrick-asset/asset/building_chocohouse_001.glb",
+      urlGlb,
       (gltf) => {
         scene.add(gltf.scene);
         adjustCamera(gltf.scene);
@@ -105,7 +105,7 @@ const Scene = () => {
       window.removeEventListener("resize", handleResize);
       renderer.dispose();
     };
-  }, []);
+  }, [urlGlb]);
 
   return (
     <canvas ref={canvasRef} style={{ width: "100%", height: "100vh" }}></canvas>
